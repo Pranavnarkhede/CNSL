@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentication App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; text-align: center; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin: 0 10px; text-decoration: none; padding: 8px 15px; border: 1px solid #333; border-radius: 5px; }
+        .hero { background-color: #f4f4f4; padding: 40px; border-radius: 10px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        {% if 'username' not in session %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Signup</a>
+        {% else %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% endif %}
+    </div>
+
+    <div class="hero">
+        <h1>Welcome to Authentication App</h1>
+        {% if 'username' in session %}
+            <p>Hello, {{ session['username'] }}!</p>
+        {% else %}
+            <p>Please login or signup to continue</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+
