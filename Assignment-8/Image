@@ -1,0 +1,43 @@
+from PIL import Image
+import numpy as np
+
+# XOR encryption and decryption function
+def xor_encrypt_decrypt(data, key):
+    return bytearray([b ^ key for b in data])
+
+# Get image path and key from the user
+image_path = input("Enter the path to the image file to encrypt or decrypt: ")
+key = int(input("Enter an encryption key (an integer between 0 and 255): "))
+
+# Open image and convert to raw pixel data
+try:
+    with Image.open(image_path) as img:
+        img = img.convert("RGB")  # Ensure the image is in RGB format
+        pixel_data = np.array(img)  # Convert image to a numpy array
+except Exception as e:
+    print(f"Could not open image: {e}")
+    exit()
+
+# Flatten the pixel data for encryption/decryption
+flat_pixel_data = pixel_data.flatten()
+
+# Encrypt or decrypt the image using XOR
+encrypted_pixel_data = xor_encrypt_decrypt(flat_pixel_data, key)
+
+# Reshape the encrypted data back to the original image shape
+encrypted_pixel_data = np.array(encrypted_pixel_data).reshape(pixel_data.shape)
+
+# Convert the encrypted numpy array back to an image
+encrypted_img = Image.fromarray(encrypted_pixel_data, "RGB")
+
+# Save the encrypted/decrypted image
+decrypted_image_path = "decrypted_image.png"
+encrypted_img.save(decrypted_image_path)
+
+print(f"Image processed (encrypted/decrypted) and saved as {decrypted_image_path}")
+
+# Display the encrypted image
+try:
+    encrypted_img.show()  # Display the encrypted image
+except Exception as e:
+    print(f"Could not display the image: {e}")
