@@ -1,0 +1,68 @@
+def rail_fence_encrypt(text, rails):
+    if rails <= 1:
+        return text
+
+    # Create a matrix with empty strings
+    fence = [['' for _ in range(len(text))] for _ in range(rails)]
+    rail = 0
+    direction = 1  # 1 for down, -1 for up
+
+    # Fill the matrix
+    for i, char in enumerate(text):
+        fence[rail][i] = char
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction *= -1
+
+    # Read the matrix row-wise to get the encrypted text
+    encrypted_text = ''.join(''.join(row) for row in fence)
+    return encrypted_text
+
+
+def rail_fence_decrypt(cipher_text, rails):
+    if rails <= 1:
+        return cipher_text
+
+    # Create a matrix to mark the positions of the characters
+    fence = [['' for _ in range(len(cipher_text))] for _ in range(rails)]
+    rail = 0
+    direction = 1
+
+    # Mark the positions with asterisks
+    for i in range(len(cipher_text)):
+        fence[rail][i] = '*'
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction *= -1
+
+    # Replace the asterisks with the actual characters from the cipher text
+    index = 0
+    for r in range(rails):
+        for c in range(len(cipher_text)):
+            if fence[r][c] == '*':
+                fence[r][c] = cipher_text[index]
+                index += 1
+
+    # Read the matrix in zigzag order to decrypt
+    rail = 0
+    direction = 1
+    decrypted_text = []
+    for i in range(len(cipher_text)):
+        decrypted_text.append(fence[rail][i])
+        rail += direction
+        if rail == 0 or rail == rails - 1:
+            direction *= -1
+
+    return ''.join(decrypted_text)
+
+
+# Input values
+text = input("Enter the text: ")
+rails = int(input("Enter the number of rails: "))
+choice = input("Encrypt or Decrypt? (e/d): ").lower()
+result = rail_fence_encrypt(text, rails)
+print("Encrypted Text:", result)
+out = rail_fence_decrypt(result, rails)
+print("Decrypted Text:", out)
+
+
