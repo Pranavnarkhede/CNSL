@@ -1,0 +1,42 @@
+import random
+
+def generate_key():
+    alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    shuffled = ''.join(random.sample(alphabet, len(alphabet)))
+    return dict(zip(alphabet, shuffled))
+
+def encrypt(plain_text, key):
+    encrypted_txt = ''
+    for char in plain_text:
+        if char.isalpha():
+            # Use the key to encrypt and maintain case
+            encrypted_txt += key[char.lower()].upper() if char.isupper() else key[char]
+        else:
+            encrypted_txt += char  # Non-alphabetic characters remain unchanged
+    return encrypted_txt
+
+def decrypt(encrypted_text, key):
+    # Create a reverse mapping for decryption
+    reverse_key = {v: k for k, v in key.items()}
+    
+    decrypted_txt = ''
+    for char in encrypted_text:
+        if char.isalpha():
+            # Use the reverse key to decrypt and maintain case
+            decrypted_txt += reverse_key[char.lower()].upper() if char.isupper() else reverse_key[char]
+        else:
+            decrypted_txt += char  # Non-alphabetic characters remain unchanged
+    return decrypted_txt
+
+def main():
+    key = generate_key()
+    print("Key (plain -> cipher):", key)
+    
+    plain_text = "i AM ai"
+    encrypted_txt = encrypt(plain_text, key)
+    print("Encrypted Text:", encrypted_txt)
+    
+    decrypted_txt = decrypt(encrypted_txt, key)
+    print("Decrypted Text:", decrypted_txt)
+if __name__ == '__main__':
+    main()
