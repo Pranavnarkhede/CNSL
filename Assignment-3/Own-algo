@@ -1,0 +1,37 @@
+def encrypt(message, shift, key, rotate):
+    encrypted_message = []
+    for char in message:
+        # Apply shift
+        shifted_char = chr((ord(char) + shift) % 1114112)  # Unicode max is 1114111
+        # Apply XOR
+        xor_char = chr((ord(shifted_char) ^ key) % 1114112)
+        # Apply rotation
+        rotated_char = chr((ord(xor_char) + rotate) % 1114112)
+        encrypted_message.append(rotated_char)
+    return ''.join(encrypted_message)
+
+
+def decrypt(message, shift, key, rotate):
+    decrypted_message = []
+    for char in message:
+        # Reverse rotation
+        unrotated_char = chr((ord(char) - rotate) % 1114112)
+        # Reverse XOR
+        unxor_char = chr((ord(unrotated_char) ^ key) % 1114112)
+        # Reverse shift
+        unshifted_char = chr((ord(unxor_char) - shift) % 1114112)
+        decrypted_message.append(unshifted_char)
+    return ''.join(decrypted_message)
+
+
+if __name__ == "__main__":
+    message = input("Enter a message to encrypt: ")
+    shift = int(input("Enter an integer shift for encryption: "))
+    key = int(input("Enter an integer key for encryption: "))
+    rotation = int(input("Enter an integer rotation for encryption: "))
+
+    encrypted_message = encrypt(message, shift, key, rotation)
+    print("Encrypted Message:", encrypted_message)
+
+    decrypted_message = decrypt(encrypted_message, shift, key, rotation)
+    print("Decrypted Message:", decrypted_message)
