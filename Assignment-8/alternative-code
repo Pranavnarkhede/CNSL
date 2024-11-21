@@ -1,4 +1,3 @@
-
 from PIL import Image
 import numpy as np
 from Crypto.Cipher import AES
@@ -7,6 +6,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from Crypto.Random import get_random_bytes
 import io
+import os
 
 # Generate AES Secret Key
 def generate_aes_key():
@@ -31,6 +31,7 @@ def decrypt_image(encrypted_data, aes_key):
 # Generate SHA-256 hash
 def generate_hash(data):
     return SHA256.new(data)
+
 # RSA key pair generation and signing
 def generate_rsa_key_pair():
     key = RSA.generate(2048)
@@ -52,6 +53,17 @@ def display_image(image_data):
     image = Image.open(io.BytesIO(image_data))
     image.show()
 
+# Save and display encrypted data as an image (for demonstration purposes)
+def display_encrypted_image(encrypted_data):
+    # Create a temporary file to save the encrypted data as an image
+    temp_file_path = "encrypted_image.dat"
+    
+    with open(temp_file_path, "wb") as temp_file:
+        temp_file.write(encrypted_data)
+    
+    # Display the temporary file (this won't show it as a proper image)
+    print(f"Encrypted data saved to {temp_file_path}. It cannot be displayed as a valid image.")
+
 def main():
     # Load image as byte array
     image_path = "C:/Users/Pranav/Downloads/Pi7_Tool_Pranav Photo.jpg"
@@ -61,13 +73,15 @@ def main():
     # AES encryption
     aes_key = generate_aes_key()
     encrypted_image = encrypt_image(image_data, aes_key)
-    print("Image encrypted.")
     
     # RSA signature
     image_hash = generate_hash(image_data)
     private_key, public_key = generate_rsa_key_pair()
     digital_signature = sign_hash(image_hash, private_key)
-    print("Image hash signed.")
+
+    # Display hash and signature values
+    print("Image Hash (SHA-256):", image_hash.hexdigest())
+    print("Digital Signature:", digital_signature.hex())
     
     # Receiver side:
     
@@ -82,6 +96,13 @@ def main():
         print("Image integrity and authenticity verified.")
         # Display the decrypted image
         display_image(decrypted_image)
+        
+        # Display encrypted image data (for demonstration purposes)
+        print("Encrypted Image Data (first 64 bytes):", encrypted_image.hex()[:128])  # Show first 64 bytes in hex format
+        
+        # Display encrypted data as an "image"
+        display_encrypted_image(encrypted_image)
+        
     else:
         print("Verification failed.")
 
