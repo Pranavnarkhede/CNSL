@@ -1,0 +1,89 @@
+
+from PIL import Image
+import numpy as np
+from Crypto.Cipher import AES
+from Crypto.Signature import pkcs1_15
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA256
+from Crypto.Random import get_random_bytes
+import io
+
+# Generate AES Secret Key
+def generate_aes_key():
+    return get_random_bytes(16)  # 128-bit AES key
+
+# Encrypt image using AES
+def encrypt_image(image_data, aes_key):
+    cipher = AES.new(aes_key, AES.MODE_CBC)
+    padding = 16 - len(image_data) % 16
+    image_data += bytes([padding]) * padding
+    encrypted_data = cipher.encrypt(image_data)
+    return cipher.iv + encrypted_data  # Prepend IV to the encrypted data
+
+# Decrypt image using AES
+def decrypt_image(encrypted_data, aes_key):
+    iv = encrypted_data[:16]
+    cipher = AES.new(aes_key, AES.MODE_CBC, iv)
+    decrypted_data = cipher.decrypt(encrypted_data[16:])
+    padding = decrypted_data[-1]
+    return decrypted_data[:-padding]
+
+# Generate SHA-256 hash
+def generate_hash(data):
+    return SHA256.new(data)
+# RSA key pair generation and signing
+def generate_rsa_key_pair():
+    key = RSA.generate(2048)
+    return key, key.publickey()
+
+def sign_hash(hash_data, private_key):
+    return pkcs1_15.new(private_key).sign(hash_data)
+
+# Verify the signature
+def verify_signature(hash_data, signature, public_key):
+    try:
+        pkcs1_15.new(public_key).verify(hash_data, signature)
+        return True
+    except:
+        return False
+
+# Display image from byte array
+def display_image(image_data):
+    image = Image.open(io.BytesIO(image_data))
+    image.show()
+
+def main():
+    # Load image as byte array
+    image_path = "C:/Users/Pranav/Downloads/Pi7_Tool_Pranav Photo.jpg"
+    with open(image_path, "rb") as f:
+        image_data = f.read()
+    
+    # AES encryption
+    aes_key = generate_aes_key()
+    encrypted_image = encrypt_image(image_data, aes_key)
+    print("Image encrypted.")
+    
+    # RSA signature
+    image_hash = generate_hash(image_data)
+    private_key, public_key = generate_rsa_key_pair()
+    digital_signature = sign_hash(image_hash, private_key)
+    print("Image hash signed.")
+    
+    # Receiver side:
+    
+    # Decrypt the image
+    decrypted_image = decrypt_image(encrypted_image, aes_key)
+    
+    # Verify the hash
+    received_hash = generate_hash(decrypted_image)
+    is_verified = verify_signature(received_hash, digital_signature, public_key)
+    
+    if is_verified:
+        print("Image integrity and authenticity verified.")
+        # Display the decrypted image
+        display_image(decrypted_image)
+    else:
+        print("Verification failed.")
+
+if __name__ == "__main__":
+    main()
