@@ -1,0 +1,82 @@
+import random
+import math
+
+def mod_exp(base, exp, mod): 
+"""Calculates (base^exp) % mod using the built-in pow function.""" 
+    return pow(base, exp, mod)
+
+def gcd(a, b):
+    """Calculate the greatest common divisor of a and b."""
+    while b:
+        a, b = b, a % b
+    return a
+
+def main():
+    # Prime numbers for Diffie-Hellman key exchange
+    prime_modulus = 23  # A prime number
+    primitive_root = 5  # A generator (primitive root)
+
+    # Private keys for participants
+    private_key_rohan = 6   # Rohan's private key
+    private_key_raj = 15    # Raj's private key
+    private_key_attacker = 7  # Attacker's private key (MITM)
+
+    # Public keys calculated from private keys
+    public_key_rohan = mod_exp(primitive_root, private_key_rohan, prime_modulus)  # Rohan's public key
+    public_key_raj = mod_exp(primitive_root, private_key_raj, prime_modulus)      # Raj's public key
+    public_key_attacker_to_raj = mod_exp(primitive_root, private_key_attacker, prime_modulus)  # Attacker's public key sent to Raj
+    public_key_attacker_to_rohan = mod_exp(primitive_root, private_key_attacker, prime_modulus)  # Attacker's public key sent to Rohan
+
+    choice = int(input("Choose an option:\n1. Exchange Public Keys between Rohan and Raj\n2. Perform Man-In-The-Middle Attack by Attacker\n"))
+
+    if choice == 1:
+        # Public key exchange between Rohan and Raj
+        print(f"Rohan's Public Key: {public_key_rohan}")
+        print(f"Raj's Public Key: {public_key_raj}")
+
+        # Rohan and Raj compute their shared secret
+        shared_secret_rohan = mod_exp(public_key_raj, private_key_rohan, prime_modulus)
+        shared_secret_raj = mod_exp(public_key_rohan, private_key_raj, prime_modulus)
+
+        print(f"Rohan computes shared secret: {shared_secret_rohan}")
+        print(f"Raj computes shared secret: {shared_secret_raj}")
+
+        if shared_secret_rohan == shared_secret_raj:
+            print("Secure communication established.")
+        else:
+            print("Shared secrets do not match!")
+
+    elif choice == 2:
+        # MITM attack by Attacker
+        print(f"Rohan's Public Key: {public_key_rohan}")
+        print(f"Raj's Public Key: {public_key_raj}")
+
+        # Attacker intercepts Rohan and Raj's messages and sends his own public key
+        print(f"Attacker sends Public Key (to Rohan): {public_key_attacker_to_rohan}")
+        print(f"Attacker sends Public Key (to Raj): {public_key_attacker_to_raj}")
+
+        # Rohan computes the shared secret with Attacker
+        shared_secret_rohan = mod_exp(public_key_attacker_to_rohan, private_key_rohan, prime_modulus)
+        print(f"Rohan computes shared secret with Attacker: {shared_secret_rohan}")
+
+        # Raj computes the shared secret with Attacker
+        shared_secret_raj = mod_exp(public_key_attacker_to_raj, private_key_raj, prime_modulus)
+        print(f"Raj computes shared secret with Attacker: {shared_secret_raj}")
+
+        # Attacker knows both shared secrets
+        shared_secret_attacker_rohan = mod_exp(public_key_rohan, private_key_attacker, prime_modulus)
+        shared_secret_attacker_raj = mod_exp(public_key_raj, private_key_attacker, prime_modulus)
+
+        print(f"Attacker computes shared secret with Rohan: {shared_secret_attacker_rohan}")
+        print(f"Attacker computes shared secret with Raj: {shared_secret_attacker_raj}")
+
+        if shared_secret_rohan == shared_secret_attacker_rohan and shared_secret_raj == shared_secret_attacker_raj:
+            print("Man-In-The-Middle attack successful. Attacker can intercept and modify messages.")
+        else:
+            print("MITM attack failed!")
+
+    else:
+        print("Invalid option!")
+
+if __name__ == "__main__":
+    main()
