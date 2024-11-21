@@ -1,0 +1,41 @@
+def encrypt(text, shift):
+    result = ""  # Initialize an empty string for the result
+
+    # Traverse through each character in the input text
+    for char in text:
+        # Encrypt uppercase characters
+        if char.isupper():
+            result += chr((ord(char) + shift - 65) % 26 + 65)
+        # Encrypt lowercase characters
+        elif char.islower():
+            result += chr((ord(char) + shift - 97) % 26 + 97)
+        else:
+            result += char  # Non-alphabetic characters are added unchanged
+
+    return result
+
+def decrypt(text, shift):
+    result = ""  # Initialize an empty string for the result
+
+    # Traverse through each character in the input text
+    for char in text:
+        # Decrypt uppercase characters
+        if char.isupper():
+            result += chr((ord(char) - shift - 65) % 26 + 65)
+        # Decrypt lowercase characters
+        elif char.islower():
+            result += chr((ord(char) - shift - 97) % 26 + 97)
+        else:
+            result += char  # Non-alphabetic characters are added unchanged
+
+    return result
+
+# Example usage
+text = "Hello, World!"
+shift = 3
+
+encrypted_text = encrypt(text, shift)
+print("Encrypted:", encrypted_text)
+
+decrypted_text = decrypt(encrypted_text, shift)
+print("Decrypted:", decrypted_text)
