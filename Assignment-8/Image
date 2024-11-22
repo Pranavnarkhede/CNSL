@@ -6,10 +6,10 @@ def xor_encrypt_decrypt(data, key):
     return bytearray([b ^ key for b in data])
 
 # Get image path and key from the user
-image_path = input("Enter the path to the image file to encrypt or decrypt: ")
+image_path = input("Enter the path to the image file to encrypt: ")
 key = int(input("Enter an encryption key (an integer between 0 and 255): "))
 
-# Open image and convert to raw pixel data
+# Open the image and convert to raw pixel data
 try:
     with Image.open(image_path) as img:
         img = img.convert("RGB")  # Ensure the image is in RGB format
@@ -18,10 +18,10 @@ except Exception as e:
     print(f"Could not open image: {e}")
     exit()
 
-# Flatten the pixel data for encryption/decryption
+# Flatten the pixel data for encryption
 flat_pixel_data = pixel_data.flatten()
 
-# Encrypt or decrypt the image using XOR
+# Encrypt the image using XOR
 encrypted_pixel_data = xor_encrypt_decrypt(flat_pixel_data, key)
 
 # Reshape the encrypted data back to the original image shape
@@ -30,14 +30,28 @@ encrypted_pixel_data = np.array(encrypted_pixel_data).reshape(pixel_data.shape)
 # Convert the encrypted numpy array back to an image
 encrypted_img = Image.fromarray(encrypted_pixel_data, "RGB")
 
-# Save the encrypted/decrypted image
+# Save the encrypted image
+encrypted_image_path = "encrypted_image.png"
+encrypted_img.save(encrypted_image_path)
+
+print(f"Encrypted image saved as {encrypted_image_path}")
+
+# Decrypt the image
+decrypted_pixel_data = xor_encrypt_decrypt(encrypted_pixel_data.flatten(), key)
+decrypted_pixel_data = np.array(decrypted_pixel_data).reshape(pixel_data.shape)
+
+# Convert the decrypted numpy array back to an image
+decrypted_img = Image.fromarray(decrypted_pixel_data, "RGB")
+
+# Save the decrypted image
 decrypted_image_path = "decrypted_image.png"
-encrypted_img.save(decrypted_image_path)
+decrypted_img.save(decrypted_image_path)
 
-print(f"Image processed (encrypted/decrypted) and saved as {decrypted_image_path}")
+print(f"Decrypted image saved as {decrypted_image_path}")
 
-# Display the encrypted image
+# Display the encrypted and decrypted images
 try:
-    encrypted_img.show()  # Display the encrypted image
+    encrypted_img.show(title="Encrypted Image")
+    decrypted_img.show(title="Decrypted Image")
 except Exception as e:
     print(f"Could not display the image: {e}")
